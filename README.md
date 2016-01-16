@@ -1,6 +1,6 @@
 # JoeRxBus
 使用RxJava编写的Eventbus—RxBus
-Author Joe
+<br>Author Joe
 
 ##介绍
 使用RxJava编写的EventBus，本身使用Rxjava就可以很方便的实现Eventbus的功能。我在基础上进行了扩展，<br>
