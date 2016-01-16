@@ -20,9 +20,12 @@ public class RxBus {
 
     private AnnotationHandler annotationHandler;
 
+    private EventDispatcher dispatcher;
+
     private RxBus() {
         subscriberMap = new HashMap<>();
-        annotationHandler = new AnnotationHandler();
+        annotationHandler = new AnnotationHandler(subscriberMap);
+        dispatcher = new EventDispatcher();
     }
 
     //单例模式
@@ -37,17 +40,37 @@ public class RxBus {
         return instance;
     }
 
-    public void post(Object obj, String tag) {
-        //将Object转换为被观察者
-        Observable<Object> event = Observable.just(obj);
-    }
-
-    public void registerMaster(Object master) {
+    public void register(Object master) {
         if (master == null) {
             return;
         }
         synchronized (this) {
-
+            annotationHandler.findActionsFromMaster(master);
         }
+    }
+
+    public void unRegister(Object master) {
+        if (master == null) {
+            return;
+        }
+        synchronized (this) {
+            annotationHandler.removeMaster(master);
+        }
+    }
+
+    public void post(Object obj) {
+        post(obj, DefaultValue.DEFAULT_TAG);
+    }
+
+    public void post(Object obj, String tag) {
+        if (obj == null) {
+            return;
+        }
+        //将Object转换为被观察者
+        Observable<Object> event = Observable.just(obj);
+        if (dispatcher == null) {
+            dispatcher = new EventDispatcher();
+        }
+        dispatcher.dispatch(subscriberMap, tag, event);
     }
 }

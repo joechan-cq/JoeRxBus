@@ -1,5 +1,7 @@
 package com.joe.rxbus;
 
+import java.lang.ref.WeakReference;
+
 import rx.functions.Action1;
 
 /**
@@ -8,11 +10,14 @@ import rx.functions.Action1;
  */
 public final class EventModel {
 
+    public WeakReference<Object> master;
+
     public ThreadMode mode;
 
     public Action1 action;
 
-    public EventModel(Action1 action, ThreadMode mode) {
+    public EventModel(Object master, Action1 action, ThreadMode mode) {
+        this.master = new WeakReference<>(master);
         this.action = action;
         this.mode = mode;
     }

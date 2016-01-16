@@ -6,15 +6,19 @@ package com.joe.rxbus;
  */
 public enum ThreadMode {
     /**
-     * 将事件执行在UI线程
+     * 在主线程执行
      */
     MAIN,
     /**
-     * 在发布线程执行
+     * 在读写线程执行
      */
-    POST,
+    IO,
     /**
-     * 将事件执行在一个子线程中
+     * 新开线程执行
      */
-    ASYNC
+    NEW_THREAD,
+    /**
+     * 在当前线程执行
+     */
+    IMMEDIATE
 }
