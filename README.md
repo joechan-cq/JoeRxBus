@@ -5,12 +5,15 @@
 ##介绍
 使用RxJava编写的EventBus，本身使用Rxjava就可以很方便的实现Eventbus的功能。我在基础上进行了扩展，<br>
 实现了和AndroidEventBus类似的，使用注解的方式指定观察者，不同的在于AndroidEventBus注解是在方法上使用，JoeRxBus是在变量上使用，只要使实现了Action1接口的变量就行。<br>
-目前，实现的只是基础的事件传递，还未完成AndrodEventBus的sticky模式。
+已经完成Sticky模式的注册和使用。registerSticky可以对普通的post进行反应；postSticky的消息只会对之后registerSticky的对象有效，如需要，用post使之前的观察者生效。<br>
+
+##不足
+sticky事件的移除是根据tag进行，Sticky事件中同一tag下的事件均会被移除。
 
 ##使用说明
 和AndroidEventBus类似，使用RxBus.getInstance().register()方式注册，在合适的地方进行unRegister。<br>
 ```
- @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
