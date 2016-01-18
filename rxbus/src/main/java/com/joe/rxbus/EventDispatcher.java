@@ -1,5 +1,8 @@
 package com.joe.rxbus;
 
+import com.joe.rxbus.annotation.Subscription;
+
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -12,9 +15,16 @@ import rx.schedulers.Schedulers;
  * Created by chenqiao on 2016/1/16.
  */
 public class EventDispatcher {
-    public void dispatch(Map<String, CopyOnWriteArrayList<EventModel>> subscriberMap, String tag, Observable<Object> event) {
-        CopyOnWriteArrayList<EventModel> matchList = subscriberMap.get(tag);
+    public void dispatch(Map<String, CopyOnWriteArrayList<EventModel>> subscriberMap, Subscription subscription) {
+        if (subscription == null) {
+            return;
+        }
+        CopyOnWriteArrayList<EventModel> matchList = subscriberMap.get(subscription.getTag());
         if (matchList == null || matchList.size() == 0) {
+            return;
+        }
+        Observable<Object> event = subscription.getEvent();
+        if (event == null) {
             return;
         }
         for (EventModel model : matchList) {
@@ -37,6 +47,12 @@ public class EventDispatcher {
                         break;
                 }
             }
+        }
+    }
+
+    public void dispatchStickyEvents(Map<String, CopyOnWriteArrayList<EventModel>> subscriberMap, List<Subscription> mStickyEvents) {
+        for (Subscription subscription : mStickyEvents) {
+            dispatch(subscriberMap, subscription);
         }
     }
 }

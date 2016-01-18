@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                RxBus.getInstance().postSticky("this is a sticky event");
             }
         });
     }
@@ -45,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        Log.d("demo", "ondestroy");
         super.onDestroy();
         RxBus.getInstance().unRegister(this);
     }
