@@ -3,6 +3,8 @@ package com.joe.rxbus;
 import com.joe.rxbus.annotation.AnnotationHandler;
 import com.joe.rxbus.annotation.Subscription;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,6 +27,8 @@ public class RxBus {
 
     private List<Subscription> mStickyEvents;
 
+    private List<WeakReference<Object>> registedMasters;
+
     private AnnotationHandler annotationHandler;
 
     private EventDispatcher dispatcher;
@@ -34,6 +38,7 @@ public class RxBus {
         annotationHandler = new AnnotationHandler(subscriberMap);
         dispatcher = new EventDispatcher();
         mStickyEvents = Collections.synchronizedList(new LinkedList<Subscription>());
+        registedMasters = new ArrayList<>();
     }
 
     //单例模式
@@ -56,8 +61,22 @@ public class RxBus {
             return;
         }
         synchronized (this) {
-            annotationHandler.findActionsFromMaster(master);
+            if (!checkRegister(master)) {
+                annotationHandler.findActionsFromMaster(master);
+            }
         }
+    }
+
+    /**
+     * 检查是否已经注册
+     */
+    private boolean checkRegister(Object master) {
+        for (WeakReference<Object> item : registedMasters) {
+            if (item.get() != null && item.get().equals(master)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -79,7 +98,20 @@ public class RxBus {
             return;
         }
         synchronized (this) {
+            removeMasterFromList(master);
             annotationHandler.removeMaster(master);
+        }
+    }
+
+    private void removeMasterFromList(Object master) {
+        int index;
+        for (index = 0; index < registedMasters.size(); index++) {
+            if (registedMasters.get(index) != null && registedMasters.get(index).get().equals(master)) {
+                break;
+            }
+        }
+        if (index >= 0 && index < registedMasters.size()) {
+            registedMasters.remove(index);
         }
     }
 
