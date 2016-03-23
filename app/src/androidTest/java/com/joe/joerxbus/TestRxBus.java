@@ -2,12 +2,6 @@ package com.joe.joerxbus;
 
 import android.test.InstrumentationTestCase;
 
-import com.joe.rxbus.RxBus;
-import com.joe.rxbus.ThreadMode;
-import com.joe.rxbus.annotation.Subscriber;
-
-import rx.functions.Action1;
-
 /**
  * Description
  * Created by chenqiao on 2016/1/15.
@@ -15,24 +9,32 @@ import rx.functions.Action1;
 public class TestRxBus extends InstrumentationTestCase {
 
     public void testBus() throws Throwable {
-        RxBus.getInstance().register(this);
-        RxBus.getInstance().post("123", "test");
-        RxBus.getInstance().post("abc", "test2");
+        byte h = 0x01;
+        byte l = (byte) 0xfe;
+        int result = bytesToInt(h, l);
+        System.out.println("Test:" + result);
+        assertEquals(result, 510);
     }
 
-    @Subscriber(tag = "test", mode = ThreadMode.MAIN)
-    public Action1 action = new Action1() {
-        @Override
-        public void call(Object o) {
-          //  assertEquals(o.toString(), "123");
-        }
-    };
 
-    @Subscriber(tag = "test2", mode = ThreadMode.NEW_THREAD)
-    public Action1 action2 = new Action1() {
-        @Override
-        public void call(Object o) {
-            assertEquals(o.toString(), "abc");
+    private int bytesToInt(byte h, byte l) {
+        int result = 0;
+        boolean isMinus = false;
+        if ((h & 0x80) == 0b1000_0000) {
+            isMinus = true;
+            h = (byte) (h & 0x7f);
         }
-    };
+        result = ((int) h) << 8;
+        if (l < 0) {
+            result = result + 256 + l;
+        } else {
+            result += l;
+        }
+        if (isMinus) {
+            return -result;
+        } else {
+            return result;
+        }
+    }
+
 }
